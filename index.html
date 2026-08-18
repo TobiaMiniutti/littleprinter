@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Send a real message to a Little Printer using the Nord Projects Print Key API.">
+  <meta name="color-scheme" content="light">
+  <title>Little Printers</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="app-screen" aria-label="Little Printers web app">
+      <header class="app-nav">
+        <img src="assets/little-printer.png" alt="">
+        <h1>Little Printers</h1>
+        <span class="nav-word">WEB</span>
+      </header>
+
+      <div class="screen-body">
+        <section class="connect-card" aria-labelledby="printer-name">
+          <div class="printer-summary">
+            <img src="assets/little-printer.png" alt="Little Printer">
+            <div>
+              <h2 id="printer-name">Connect a printer</h2>
+              <p id="printer-info">Enter your Nord Projects Print Key</p>
+            </div>
+          </div>
+          <div class="key-row">
+            <div class="key-field">
+              <input id="print-key" type="password" placeholder="https://device.li/your-print-key" aria-label="Nord Projects Print Key URL" autocomplete="off" spellcheck="false">
+              <button id="reveal" type="button" class="reveal">SHOW</button>
+            </div>
+            <button id="connect" class="chunky small" type="button">CONNECT</button>
+          </div>
+          <p class="secret-note">Your Print Key is a secret URL. It stays in this browser and is never stored.</p>
+        </section>
+
+        <form id="message-form" class="message-composer" novalidate>
+          <div class="receipt-preview">
+            <div class="receipt-header" id="receipt-date"></div>
+            <div class="poster-text placeholder" id="poster-text">YOUR MESSAGE</div>
+          </div>
+          <div class="messaging-toolbar">
+            <div class="message-input">
+              <input id="message" maxlength="280" placeholder="Enter your message" aria-label="Message" autocapitalize="sentences">
+              <span id="counter">0/280</span>
+            </div>
+            <button id="send" class="send-button" type="submit" disabled aria-label="Send to Little Printer"><img src="assets/send.png" alt=""></button>
+          </div>
+        </form>
+
+        <div class="notice" id="notice" role="status" aria-live="polite">
+          <span id="notice-icon" hidden></span>
+          <p id="notice-text">Connect with a Print Key, then send a message.</p>
+        </div>
+      </div>
+      <footer>Little Printers web client · Compatible with the Nord Projects Print Key API</footer>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
