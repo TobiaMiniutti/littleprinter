@@ -3,76 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Send a real message to a Little Printer using the Nord Projects Print Key API.">
+  <meta name="description" content="Compose, preview and send real thermal prints to a Little Printer using the Nord Projects Print Key API.">
   <meta name="color-scheme" content="light">
   <title>Little Printers</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="sender.css">
+  <link rel="stylesheet" href="v2.css">
 </head>
 <body>
   <main class="page-shell">
     <section class="app-screen" aria-label="Little Printers web app">
-      <header class="app-nav">
-        <img src="assets/little-printer.png" alt="">
-        <h1>Little Printers</h1>
-        <span class="nav-word">WEB</span>
-      </header>
-
+      <header class="app-nav"><img src="assets/little-printer.png" alt=""><h1>Little Printers</h1><span class="nav-word">WEB</span></header>
       <div class="screen-body">
         <section class="connect-card" aria-labelledby="printer-name">
           <div class="printer-summary">
             <img src="assets/little-printer.png" alt="Little Printer">
-            <div>
-              <h2 id="printer-name">Connect a printer</h2>
-              <p id="printer-info">Enter your Nord Projects Print Key</p>
-            </div>
+            <div class="printer-copy"><h2 id="printer-name">Connect a printer</h2><p id="printer-info">Enter your Nord Projects Print Key</p></div>
+            <button id="refresh-status" class="icon-button" type="button" aria-label="Refresh printer status" title="Refresh status">↻</button>
           </div>
           <div class="key-row">
-            <div class="key-field">
-              <input id="print-key" type="password" placeholder="https://device.li/your-print-key" aria-label="Nord Projects Print Key URL" autocomplete="off" spellcheck="false">
-              <button id="reveal" type="button" class="reveal">SHOW</button>
-            </div>
+            <div class="key-field"><input id="print-key" type="password" placeholder="https://device.li/your-print-key" aria-label="Nord Projects Print Key URL" autocomplete="off" spellcheck="false"><button id="reveal" type="button" class="reveal">SHOW</button></div>
             <button id="connect" class="chunky small" type="button">CONNECT</button>
           </div>
-          <div class="sender-field">
-            <label for="sender-name">Your name · printed in the header</label>
-            <input id="sender-name" maxlength="40" placeholder="Who is sending this?" autocomplete="name">
-          </div>
+          <div class="sender-field"><label for="sender-name">Your name · printed in the header</label><input id="sender-name" maxlength="40" placeholder="Who is sending this?" autocomplete="name"></div>
           <p class="secret-note">Your Print Key is a secret URL. It stays in this browser and is never stored.</p>
         </section>
 
-        <form id="message-form" class="message-composer mode-text" novalidate>
-          <div class="type-switch" aria-label="Content type">
-            <button id="mode-text" class="active" type="button">TEXT</button>
-            <button id="mode-image" type="button">IMAGE</button>
-          </div>
-          <div class="receipt-preview">
-            <div class="receipt-header" id="receipt-date"></div>
-            <div class="poster-text placeholder" id="poster-text">YOUR MESSAGE</div>
-            <img class="image-preview" id="image-preview" alt="Selected image preview" hidden>
-            <div class="image-placeholder" id="image-placeholder" hidden><span>＋</span><p>CHOOSE AN IMAGE</p></div>
-          </div>
-          <div class="messaging-toolbar">
-            <div class="message-input" id="message-controls">
-              <input id="message" maxlength="280" placeholder="Enter your message" aria-label="Message" autocapitalize="sentences">
-              <span id="counter">0/280</span>
-            </div>
-            <label class="image-picker" id="image-controls" hidden>
-              <input id="image-file" type="file" accept="image/png,image/jpeg,image/gif">
-              <span id="image-file-name">Choose PNG, JPEG or GIF</span>
-            </label>
-            <button id="send" class="send-button" type="submit" disabled aria-label="Send to Little Printer"><img src="assets/send.png" alt=""></button>
-          </div>
-        </form>
+        <nav class="studio-tabs" aria-label="Print studio sections">
+          <button class="active" type="button" data-panel="compose">CREATE</button>
+          <button type="button" data-panel="draw">DRAW</button>
+          <button type="button" data-panel="templates">CLASSICS</button>
+        </nav>
 
-        <div class="notice" id="notice" role="status" aria-live="polite">
-          <span id="notice-icon" hidden></span>
-          <p id="notice-text">Connect with a Print Key, then send a message.</p>
-        </div>
+        <section class="studio-panel active" id="panel-compose">
+          <div class="field-stack">
+            <label for="title">Title <span>optional</span></label><input id="title" maxlength="48" placeholder="A short title">
+            <label for="message">Message</label><textarea id="message" maxlength="800" rows="4" placeholder="Write your message"></textarea>
+            <div class="composition-meta"><span id="counter">0/800 characters</span><span id="line-count">0 lines</span></div>
+            <label class="image-picker mixed-picker"><input id="image-file" type="file" accept="image/png,image/jpeg,image/gif"><span id="image-file-name">＋ Add PNG, JPEG or GIF</span></label>
+            <button id="remove-image" class="text-button" type="button" hidden>Remove image</button>
+          </div>
+        </section>
+
+        <section class="studio-panel" id="panel-draw" hidden>
+          <div class="draw-tools"><span>QUICKDRAW</span><label>SIZE <input id="brush-size" type="range" min="2" max="18" value="5"></label><button id="clear-drawing" class="text-button" type="button">CLEAR</button></div>
+          <canvas id="drawing-canvas" width="384" height="300" aria-label="Drawing area"></canvas>
+        </section>
+
+        <section class="studio-panel" id="panel-templates" hidden>
+          <div class="template-grid" role="list">
+            <button type="button" data-template="herbarium"><b>HERBARIUM</b><span>Botanical card</span></button>
+            <button type="button" data-template="horoscope"><b>HOROSCOPE</b><span>Daily sign</span></button>
+            <button type="button" data-template="sudoku"><b>SUDOKU</b><span>Daily puzzle</span></button>
+            <button type="button" data-template="maze"><b>MAZE</b><span>Daily labyrinth</span></button>
+            <button type="button" data-template="weather"><b>WEATHER</b><span>Forecast card</span></button>
+            <button type="button" data-template="agenda"><b>AGENDA</b><span>Today on paper</span></button>
+            <button type="button" data-template="note"><b>NOTE</b><span>Classic poster</span></button>
+          </div>
+          <div id="template-options" class="template-options"></div>
+        </section>
+
+        <section class="thermal-section" aria-labelledby="preview-title">
+          <div class="section-heading"><h2 id="preview-title">THERMAL PREVIEW</h2><div class="dither-control"><label for="dither-mode">IMAGE</label><select id="dither-mode"><option value="atkinson">ATKINSON</option><option value="threshold">THRESHOLD</option></select></div></div>
+          <div class="receipt-preview thermal-preview"><canvas id="receipt-canvas" width="384" height="500"></canvas></div>
+          <div class="print-metrics"><span id="receipt-length">≈ 63 mm receipt</span><span>384 px thermal width</span></div>
+        </section>
+
+        <div class="action-row"><button id="schedule-open" class="secondary-action" type="button">SCHEDULE</button><button id="send" class="chunky primary-action" type="button" disabled>SEND NOW</button></div>
+        <section id="scheduler" class="scheduler" hidden>
+          <h2>SCHEDULE A PRINT</h2>
+          <div class="schedule-row"><input id="schedule-time" type="datetime-local"><button id="schedule-save" class="chunky small" type="button">SAVE</button></div>
+          <p>Saved locally for now. The future server connector will execute these jobs even when this page is closed.</p>
+          <div id="scheduled-list" class="scheduled-list"></div>
+        </section>
+        <div class="notice" id="notice" role="status" aria-live="polite"><span id="notice-icon" hidden></span><p id="notice-text">Connect with a Print Key, create a receipt, then send it.</p></div>
       </div>
       <footer>Little Printers web client · Compatible with the Nord Projects Print Key API</footer>
     </section>
   </main>
-  <script src="app.js"></script>
+  <script src="v2.js"></script>
 </body>
 </html>
