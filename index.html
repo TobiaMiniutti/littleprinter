@@ -7,6 +7,7 @@
   <meta name="color-scheme" content="light">
   <title>Little Printers</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="sender.css">
 </head>
 <body>
   <main class="page-shell">
@@ -32,6 +33,10 @@
               <button id="reveal" type="button" class="reveal">SHOW</button>
             </div>
             <button id="connect" class="chunky small" type="button">CONNECT</button>
+          </div>
+          <div class="sender-field">
+            <label for="sender-name">Your name</label>
+            <input id="sender-name" maxlength="40" placeholder="Who is sending this?" autocomplete="name">
           </div>
           <p class="secret-note">Your Print Key is a secret URL. It stays in this browser and is never stored.</p>
         </section>

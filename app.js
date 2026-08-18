@@ -1,6 +1,7 @@
 const keyInput=document.querySelector('#print-key');
 const revealButton=document.querySelector('#reveal');
 const connectButton=document.querySelector('#connect');
+const senderInput=document.querySelector('#sender-name');
 const messageInput=document.querySelector('#message');
 const sendButton=document.querySelector('#send');
 const form=document.querySelector('#message-form');
@@ -13,6 +14,11 @@ const noticeIcon=document.querySelector('#notice-icon');
 const noticeText=document.querySelector('#notice-text');
 
 document.querySelector('#receipt-date').textContent=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short',year:'numeric'}).format(new Date()).replace(',','  | ').toUpperCase()+'  |  WEB';
+
+function updateReceiptSender(){
+  const date=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short',year:'numeric'}).format(new Date()).replace(',','  | ').toUpperCase();
+  document.querySelector('#receipt-date').textContent=date+'  |  '+(senderInput.value.trim()||'SENDER').toUpperCase();
+}
 
 function endpoint(){
   const value=keyInput.value.trim().replace(/\/+$/,'');
@@ -72,15 +78,22 @@ messageInput.addEventListener('input',()=>{
   poster.textContent=text||'YOUR MESSAGE';
   poster.className='poster-text'+(!text?' placeholder':text.length>180?' xs':text.length>110?' sm':text.length>55?' md':'');
   counter.textContent=messageInput.value.length+'/280';
-  sendButton.disabled=!text;
+  sendButton.disabled=!text||!senderInput.value.trim();
+});
+
+senderInput.addEventListener('input',()=>{
+  updateReceiptSender();
+  sendButton.disabled=!messageInput.value.trim()||!senderInput.value.trim();
 });
 
 form.addEventListener('submit',async event=>{
   event.preventDefault();
   const text=messageInput.value.trim();
   if(!text){setNotice('error','Write a message first.','×');return}
+  const sender=senderInput.value.trim();
+  if(!sender){setNotice('error','Enter your name before sending.','×');return}
   let url;
-  try{url=new URL(endpoint());url.searchParams.set('from','Web')}catch(error){setNotice('error','Connect a valid Print Key first.','×');return}
+  try{url=new URL(endpoint());url.searchParams.set('from',sender)}catch(error){setNotice('error','Connect a valid Print Key first.','×');return}
   sendButton.disabled=true;
   setNotice('sending','Sending your message…','⌛');
   try{
@@ -91,5 +104,7 @@ form.addEventListener('submit',async event=>{
     if(!response.ok||result?.status!=='sent')throw new Error('HTTP '+response.status);
     setNotice('sent','Message sent to Little Printer!','✓');
   }catch(error){setNotice('error',errorMessage(error,'send'),'×')}
-  finally{sendButton.disabled=!messageInput.value.trim()}
+  finally{sendButton.disabled=!messageInput.value.trim()||!senderInput.value.trim()}
 });
+
+updateReceiptSender();
