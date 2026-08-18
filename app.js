@@ -3,6 +3,14 @@ const revealButton=document.querySelector('#reveal');
 const connectButton=document.querySelector('#connect');
 const senderInput=document.querySelector('#sender-name');
 const messageInput=document.querySelector('#message');
+const textModeButton=document.querySelector('#mode-text');
+const imageModeButton=document.querySelector('#mode-image');
+const messageControls=document.querySelector('#message-controls');
+const imageControls=document.querySelector('#image-controls');
+const imageInput=document.querySelector('#image-file');
+const imagePreview=document.querySelector('#image-preview');
+const imagePlaceholder=document.querySelector('#image-placeholder');
+const imageFileName=document.querySelector('#image-file-name');
 const sendButton=document.querySelector('#send');
 const form=document.querySelector('#message-form');
 const poster=document.querySelector('#poster-text');
@@ -12,12 +20,35 @@ const printerInfo=document.querySelector('#printer-info');
 const notice=document.querySelector('#notice');
 const noticeIcon=document.querySelector('#notice-icon');
 const noticeText=document.querySelector('#notice-text');
+let messageMode='text';
+let selectedImage=null;
+let selectedImageURL='';
 
 document.querySelector('#receipt-date').textContent=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short',year:'numeric'}).format(new Date()).replace(',','  | ').toUpperCase()+'  |  WEB';
 
 function updateReceiptSender(){
   const date=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short',year:'numeric'}).format(new Date()).replace(',','  | ').toUpperCase();
-  document.querySelector('#receipt-date').textContent=date+'  |  '+(senderInput.value.trim()||'SENDER').toUpperCase();
+  document.querySelector('#receipt-date').textContent=date+'  |  FROM '+(senderInput.value.trim()||'SENDER').toUpperCase();
+}
+
+function hasContent(){
+  return messageMode==='image'?Boolean(selectedImage):Boolean(messageInput.value.trim());
+}
+
+function updateSendButton(){
+  sendButton.disabled=!senderInput.value.trim()||!hasContent();
+}
+
+function setMode(mode){
+  messageMode=mode;
+  textModeButton.classList.toggle('active',mode==='text');
+  imageModeButton.classList.toggle('active',mode==='image');
+  messageControls.hidden=mode!=='text';
+  poster.hidden=mode!=='text';
+  imageControls.hidden=mode!=='image';
+  imagePreview.hidden=mode!=='image'||!selectedImage;
+  imagePlaceholder.hidden=mode!=='image'||Boolean(selectedImage);
+  updateSendButton();
 }
 
 function endpoint(){
@@ -78,18 +109,50 @@ messageInput.addEventListener('input',()=>{
   poster.textContent=text||'YOUR MESSAGE';
   poster.className='poster-text'+(!text?' placeholder':text.length>180?' xs':text.length>110?' sm':text.length>55?' md':'');
   counter.textContent=messageInput.value.length+'/280';
-  sendButton.disabled=!text||!senderInput.value.trim();
+  updateSendButton();
 });
 
 senderInput.addEventListener('input',()=>{
   updateReceiptSender();
-  sendButton.disabled=!messageInput.value.trim()||!senderInput.value.trim();
+  updateSendButton();
+});
+
+textModeButton.addEventListener('click',()=>setMode('text'));
+imageModeButton.addEventListener('click',()=>setMode('image'));
+
+imageInput.addEventListener('change',()=>{
+  const file=imageInput.files?.[0]||null;
+  if(selectedImageURL)URL.revokeObjectURL(selectedImageURL);
+  selectedImage=null;
+  selectedImageURL='';
+  imagePreview.removeAttribute('src');
+  imageFileName.textContent='Choose PNG, JPEG or GIF';
+  if(!file){setMode('image');return}
+  if(!['image/png','image/jpeg','image/gif'].includes(file.type)){
+    imageInput.value='';
+    setNotice('error','Choose a PNG, JPEG or GIF image.','×');
+    setMode('image');
+    return;
+  }
+  if(file.size>10*1024*1024){
+    imageInput.value='';
+    setNotice('error','The image must be smaller than 10 MB.','×');
+    setMode('image');
+    return;
+  }
+  selectedImage=file;
+  selectedImageURL=URL.createObjectURL(file);
+  imagePreview.src=selectedImageURL;
+  imageFileName.textContent=file.name;
+  setNotice('','Image ready to send.');
+  setMode('image');
 });
 
 form.addEventListener('submit',async event=>{
   event.preventDefault();
   const text=messageInput.value.trim();
-  if(!text){setNotice('error','Write a message first.','×');return}
+  if(messageMode==='text'&&!text){setNotice('error','Write a message first.','×');return}
+  if(messageMode==='image'&&!selectedImage){setNotice('error','Choose an image first.','×');return}
   const sender=senderInput.value.trim();
   if(!sender){setNotice('error','Enter your name before sending.','×');return}
   let url;
@@ -97,14 +160,15 @@ form.addEventListener('submit',async event=>{
   sendButton.disabled=true;
   setNotice('sending','Sending your message…','⌛');
   try{
-    const response=await fetch(url.toString(),{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'text/plain;charset=UTF-8',Accept:'application/json'},body:text});
+    const response=await fetch(url.toString(),{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':messageMode==='image'?selectedImage.type:'text/plain;charset=UTF-8',Accept:'application/json'},body:messageMode==='image'?selectedImage:text});
     const result=await response.json().catch(()=>null);
     if(response.status===504||result?.status==='failed-offline')throw new Error('offline');
     if(response.status===404)throw new Error('not-found');
     if(!response.ok||result?.status!=='sent')throw new Error('HTTP '+response.status);
-    setNotice('sent','Message sent to Little Printer!','✓');
+    setNotice('sent',messageMode==='image'?'Image sent to Little Printer!':'Message sent to Little Printer!','✓');
   }catch(error){setNotice('error',errorMessage(error,'send'),'×')}
-  finally{sendButton.disabled=!messageInput.value.trim()||!senderInput.value.trim()}
+  finally{updateSendButton()}
 });
 
 updateReceiptSender();
+setMode('text');
