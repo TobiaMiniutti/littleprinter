@@ -6,13 +6,14 @@
   <meta name="description" content="Compose, preview and send real thermal prints to a Little Printer using the Nord Projects Print Key API.">
   <meta name="color-scheme" content="light">
   <title>Little Printers</title>
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
   <link rel="stylesheet" href="sender.css">
-  <link rel="stylesheet" href="v2.css?v=8">
+  <link rel="stylesheet" href="v2.css?v=12">
 </head>
 <body>
   <main class="page-shell">
     <section class="app-screen" aria-label="Little Printers web app">
+      <header class="app-nav"><img src="assets/little-printer.png" alt=""><h1>Little Printers</h1><a class="nav-brand-link" href="https://miniutti.it" target="_blank" rel="noopener noreferrer" aria-label="Visit miniutti.it"><img src="assets/miniutti-logo.png" alt="Miniutti"></a></header>
       <div class="screen-body">
         <section class="connect-card" aria-labelledby="printer-name">
           <div class="printer-summary">
@@ -49,12 +50,12 @@
         </section>
 
         <section class="thermal-section" aria-labelledby="preview-title">
-          <div class="section-heading"><h2 id="preview-title">THERMAL PREVIEW</h2><div class="dither-control"><label for="dither-mode">IMAGE</label><select id="dither-mode"><option value="photo-hq">PHOTO HQ</option><option value="atkinson">ATKINSON</option><option value="threshold">THRESHOLD</option></select></div></div>
+          <div class="section-heading"><h2 id="preview-title">THERMAL PREVIEW</h2><div class="dither-control"><label for="dither-mode">IMAGE</label><select id="dither-mode"><option value="photo-hq">PHOTO HQ</option><option value="atkinson" selected>ATKINSON</option><option value="threshold">THRESHOLD</option></select></div></div>
           <div class="receipt-preview thermal-preview"><canvas id="receipt-canvas" width="384" height="500"></canvas></div>
           <div class="print-metrics"><span id="receipt-length">≈ 63 mm receipt</span><span>384 px thermal width</span></div>
         </section>
 
-        <div class="action-row"><button id="schedule-open" class="secondary-action" type="button">SCHEDULE</button><button id="send" class="chunky primary-action" type="button" disabled>SEND NOW</button></div>
+        <div class="action-row"><button id="schedule-open" class="secondary-action" type="button" disabled aria-disabled="true" title="Available in a future version">SCHEDULE</button><button id="send" class="chunky primary-action" type="button" disabled>SEND NOW</button></div>
         <section id="scheduler" class="scheduler" hidden>
           <h2>SCHEDULE A PRINT</h2>
           <div class="schedule-row"><input id="schedule-time" type="datetime-local"><button id="schedule-save" class="chunky small" type="button">SAVE</button></div>
@@ -63,9 +64,9 @@
         </section>
         <div class="notice" id="notice" role="status" aria-live="polite"><span id="notice-icon" hidden></span><p id="notice-text">Connect with a Print Key, create a receipt, then send it.</p></div>
       </div>
-      <footer>Little Printers web client · Developed by Tobia Miniutti <a href="https://www.miniutti.it"> miniutti.it </footer>
+      <footer>Little Printers web client · Compatible with the Nord Projects Print Key API</footer>
     </section>
   </main>
-  <script src="v2.js?v=8"></script>
+  <script src="v2.js?v=13"></script>
 </body>
 </html>
